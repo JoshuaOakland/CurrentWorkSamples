@@ -1,0 +1,30 @@
+from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseRedirect
+from . import models
+from . import forms
+# Create your views here.
+Topics = models.Field_Of_Work.objects.all()
+Projects = models.Objective.objects.all()
+def index(request):
+	my_string = ''
+	other_string = ''
+	open_projects = 0
+	for proj in Projects:
+		other_string += "<li>"+proj.objective_name+"</li>"
+		open_projects+=1
+	for topic in Topics:
+		my_string += "<li>"+"<a href=/projects/"+topic.field_of_work+"</a>"+topic.field_of_work+"</li>"
+	return HttpResponse("<ul>"+my_string+"</ul>"+"<hr />"+"<ul>"+other_string+"<ul>"+str(open_projects)+" Open Projects")
+#	return HttpResponse("Hello!")
+
+def new_idea(request):
+	if request.method == 'POST':
+		form = forms.ObjectiveForm(request.POST)
+		if form.is_valid():
+			m = form.save()
+			return HttpResponseRedirect('/projects/')
+	else:
+		form = forms.ObjectiveForm()
+		template = 'objective_tracker/objective_form.html'
+		context = {'form':form}
+		return render(request, template, context)
